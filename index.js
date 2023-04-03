@@ -67,13 +67,12 @@ imports.bot.hears('Статистика', async (ctx) => {
 
 imports.bot.help((ctx) => {
   ctx.reply(
-    `✅ Доступные команды: \n⒈ /start - перезапустить бота\n⒉ /help- доступные команды\n⒊ Для просмотра курса kaspa напиши в чат "Курс" или нажми кнопку\n⒋ В бота встроен chatGPT 3,5 и готов ответить почти на любой твой вопрос.`
+    `✅ Доступные команды: \n⒈ /start - перезапустить бота.\n⒉ /help- доступные команды.\n⒊ Для просмотра курса kaspa напиши в чат "Курс" или нажми кнопку.\n⒋ В бота встроен chatGPT 3,5 и готов ответить почти на любой твой вопрос.\n⒌ В бота втроен также midjourney для отрисовки картинок.\nДоступные команды midjourney:\n/pr {текст} - писать текст на Русском без скобок.\n/pe {text} - write text in English without brackets. \n 🔥 Результат запроса появится в виде картинки в чате.`
   )
 })
 
 imports.bot.hears('Курс', async (ctx) => {
   const botMessage = `${(await imports.showStats()).map((el) => {
-    // console.log(el)
     return `\n\n📊 ${el.market}\n⚡ ${el.lastPrice.toFixed(6)} ${el.target}\n${
       el.tradeURL
     }`
@@ -89,7 +88,21 @@ imports.bot.hears('Курс', async (ctx) => {
 })
 
 imports.bot.on('message', async (ctx) => {
-  await imports.generateText(ctx.message.text).then((data) => ctx.reply(data))
+  if (ctx.message.text.includes('/pe')) {
+    const replText = ctx.message.text.replace('/pe', '')
+    imports.getImage(replText).then((res) => ctx.replyWithPhoto(...res))
+    return
+  }
+  if (ctx.message.text.includes('/pr')) {
+    const replText = ctx.message.text.replace('/pr', '')
+    //two ii bro ^_^
+    const translateTXT = await imports.generateText(
+      'translate to en' + replText
+    )
+    imports.getImage(translateTXT).then((res) => ctx.replyWithPhoto(...res))
+  } else {
+    await imports.generateText(ctx.message.text).then((data) => ctx.reply(data))
+  }
 })
 
 imports.bot.launch()
